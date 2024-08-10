@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rfc xmlns="https://www.rfc-editor.org/rfc-xml" xmlns:xi="http://www.w3.org/2001/XInclude" category="std" docName="draft-nayman-bgp-prefixlist-dynamic-config-00">
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd">
+<rfc
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    category="std"
+    submissionType="IETF"
+    ipr="trust200902"
+    xml:lang="en"
+    docName="draft-nayman-bgp-prefixlist-dynamic-config-00">
     <front>
         <title abbrev="BGP Signaled Prefix-List">BGP Signaled Prefix-List For Dynamic Configuration</title>
+        <seriesInfo name="Internet-Draft" value="draft-nayman-bgp-prefixlist-dynamic-config-00" />
         <author fullname="Moshiko Nayman" initials="M" role="editor" surname="Nayman">
             <organization>Juniper Networks</organization>
             <address>
@@ -18,7 +26,6 @@
         <date year="2024" month="September"/>
         <area>Routing</area>
         <workgroup>Network Working Group</workgroup>
-        <seriesInfo name="Internet-Draft" value="draft-nayman-bgp-prefixlist-dynamic-config-00" />
         <abstract>
             <t>This document defines a new BGP extended community attribute, termed the "Prefix-List Community," which allows the dynamic assignment of prefixes to named prefix-lists via BGP signaling. The proposed extension enhances the configuration and operational flexibility of prefix-lists in routing policies by associating them with community attributes directly within BGP routes.</t>
         </abstract>
@@ -34,7 +41,7 @@
             <t>The general structure for defining a prefix-list is as follows:</t>
             <figure>
                 <artwork><![CDATA[
-                prefix-list <name> <prefix>
+                prefix-list &lt;name&gt; &lt;prefix&gt;
                 ]]></artwork>
             </figure>
 
@@ -101,6 +108,8 @@
         <section title="IANA Considerations" anchor="iana">
             <t>This document requests the allocation of a new BGP Extended Community Type for the Prefix-List Community attribute from the IANA "BGP Extended Communities" registry.</t>
         </section>
+    </middle>
+    <back>
         <references title="Normative References">
             <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.4271.xml"/>
             <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.4360.xml"/>
@@ -108,9 +117,6 @@
         <references title="Informative References">
             <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.7153.xml"/>
         </references>
-    </middle>
-
-    <back>
         <section title="Acknowledgements" anchor="ack">
             <t>The author would like to thank the IETF community for their valuable feedback and suggestions.</t>
         </section>
