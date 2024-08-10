@@ -1,0 +1,174 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<rfc xmlns:ns0="http://www.w3.org/2001/XInclude" category="std" submissionType="IETF" ipr="trust200902" xml:lang="en" docName="draft-moshiko-bgp-prefixlist-dynamic-config-00">
+    <front>
+        <title abbrev="BGP Signaled Prefix-List">BGP Signaled Prefix-List For Dynamic Configuration</title>
+        <seriesInfo name="Internet-Draft" value="draft-moshiko-bgp-prefixlist-dynamic-config-00" />
+        <author fullname="Moshiko Nayman" initials="M" role="editor" surname="Nayman">
+            <organization>Juniper Networks</organization>
+            <address>
+                <postal>
+                    <street>18 Buckingham Dr</street>
+                    <city>Manalapan</city>
+                    <code>07726</code>
+                    <region>NJ</region>
+                    <country>US</country>
+                </postal>
+                <email>mnayman@juniper.net</email>
+            </address>
+        </author>
+        <date year="2024" month="August" />
+        <area>Routing</area>
+        <workgroup>Network Working Group</workgroup>
+        <abstract>
+            <t>This document defines a new BGP extended community attribute, termed the "Prefix-List Community," which allows the dynamic assignment of prefixes to named prefix-lists via BGP signaling. The proposed extension enhances the configuration and operational flexibility of prefix-lists in routing policies by associating them with community attributes directly within BGP routes.</t>
+        </abstract>
+        <note title="Status of This Memo">
+            <t>This document specifies an Internet standards track protocol for the Internet community, and requests discussion and suggestions for improvements. Please refer to the current edition of the "Internet Official Protocol Standards" (STD 1) for the standardization state and status of this protocol. Distribution of this memo is unlimited.</t>
+        </note>
+    </front>
+
+    <middle>
+        <section title="Introduction" anchor="intro">
+            <t>In modern networks, routing policies, access control lists or filters often utilize prefix-lists to simplify configuration by allowing a set of IP prefixes to be referenced by a single name or identifier. Prefix-lists can include multiple IPv4 or IPv6 addresses, which are then applied consistently across various routing policies.</t>
+
+            <t>The general structure for defining a prefix-list is as follows:</t>
+            <figure>
+                <artwork>
+                prefix-list &amp;lt;name&amp;gt; &amp;lt;prefix&amp;gt;
+                </artwork>
+            </figure>
+
+            <t>In this context, &lt;name&gt; represents a user-defined identifier for the prefix-list, and &lt;prefix&gt; specifies the exact IP prefix.</t>
+
+            <t>To configure a prefix-list for one or more IP prefixes, the following configuration can be used:</t>
+            <figure>
+                <artwork>
+                prefix-list PREFIX-1 192.168.1.0/24
+                prefix-list PREFIX-1 192.168.2.0/24
+                </artwork>
+            </figure>
+
+            <t>To match no routes, a prefix-list might be configured as:</t>
+            <figure>
+                <artwork>
+                prefix-list PREFIX-NULL 0.0.0.0/32
+                </artwork>
+            </figure>
+
+            <t>To match all routes, the configuration might be:</t>
+            <figure>
+                <artwork>
+                prefix-list PREFIX-ANY 0.0.0.0/0
+                </artwork>
+            </figure>
+
+            <t>This document proposes a new BGP signaled mechanism to dynamically assign prefixes to prefix-lists using a new BGP extended community attribute, referred to as the "Prefix-List Community."</t>
+
+            <t>In modern networks, managing prefix-lists manually can be cumbersome and error-prone. The proposed BGP signaled mechanism aims to automate this process, enhancing operational efficiency and reducing configuration errors.</t>
+        </section>
+
+        <section title="Prefix-List Community Attribute" anchor="prefix-list-community">
+            <t>The Prefix-List Community attribute is a Non-Transitive Extended Community that enables routers to dynamically assign received prefixes to preconfigured prefix-lists. The attribute can be utilized in both IPv4 and IPv6 address families.</t>
+
+            <t>The Prefix-List Community attribute is encoded as a Type-Length-Value (TLV) structure, where the Type field indicates the community type, the Length field specifies the length of the value, and the Value field contains the prefix-list identifier.</t>
+
+            <section title="Usage and Configuration" anchor="usage">
+                <t>When a router receives a BGP route with the Prefix-List Community attribute, it will automatically assign the route to the corresponding preconfigured prefix-list. For example:</t>
+
+                <t>- A router receives the routes "192.168.1.0/24", "192.168.2.0/24", and "192.168.3.0/24" with the community attribute "prefix:100:100".</t>
+                <t>- Another route, "172.16.0.0/12", is received with the community attribute "prefix:200:200".</t>
+
+                <t>The routes will be automatically assigned to the corresponding preconfigured prefix-lists as follows:</t>
+                <figure>
+                    <artwork>
+                    prefix-list PREFIX-1 prefix:100:100
+                    prefix-list PREFIX-2 prefix:200:200
+                    </artwork>
+                </figure>
+            </section>
+
+            <section title="AFI/SAFI Support" anchor="afi-safi">
+                <t>The Prefix-List Community attribute can be signaled in BGP updates within the following Address Family Identifier (AFI) and Subsequent Address Family Identifier (SAFI) combinations:</t>
+                <t>- AFI=1, SAFI=1, IPv4 unicast: Used for standard IPv4 unicast routing</t>
+                <t>- AFI=1, SAFI=128, L3VPN IPv4 unicast: Used for L3VPN IPv4 unicast routing</t>
+                <t>- AFI=2, SAFI=1, IPv6 unicast: Used for standard IPv6 unicast routing</t>
+                <t>- AFI=2, SAFI=128, L3VPN IPv6 unicast: Used for L3VPN IPv6 unicast routing</t>
+                <t>- AFI=1, SAFI=4, labeled IPv4: Used for labeled IPv4 routing</t>
+                <t>- AFI=2, SAFI=4, labeled IPv6 (6PE): Used for labeled IPv6 routing</t>
+            </section>
+
+            <section title="Operational Behavior" anchor="operational-behavior">
+                <t>The operational behavior of a router with the Prefix-List Community attribute is as follows:</t>
+
+                <t>- <strong>Route Processing:</strong> A route received with only the Prefix-List Community attribute will be installed if there is a valid next-hop resolution. If the next-hop is invalid or cannot be resolved, the route may be placed into a hidden table but will still be used for prefix-list assignment.</t>
+
+                <t>- <strong>Interaction with Other Communities:</strong> If a route is received with both the Prefix-List Community attribute and other community attributes, the router will process it as per standard BGP processing rules defined in <xref target="RFC4271" />.</t>
+            </section>
+        </section>
+
+        <section title="Security Considerations" anchor="security">
+            <t>The Prefix-List Community attribute is a Non-Transitive Extended Community and should be treated with the same security considerations as other BGP extended communities. Care should be taken to ensure that only authorized routers and networks utilize this attribute to prevent unauthorized or malicious routing changes.</t>
+            <t>To prevent unauthorized use of the Prefix-List Community attribute, it is recommended to implement a filter or access control lists (ACLs) and BGP authentication mechanisms by implementing session protection through TTL security <xref target="RFC5082" />, TCP Authentication Option (TCP-AO) or Message Digest Algorithm 5 (MD5) and control-plane filtering. <xref target="RFC7574" />.</t>
+        </section>
+
+        <section title="IANA Considerations" anchor="iana">
+            <t>This document requests the allocation of a new BGP Extended Community Type for the Prefix-List Community attribute from the IANA "BGP Extended Communities" registry.</t>
+        </section>
+    <section title="Operational Behavior and Route Resolution" anchor="operational-behavior-resolution">
+    <t>The current method of manually configuring prefix-lists on each network element is operationally intensive, leading to increased overhead and potential configuration errors. This document proposes a solution by introducing a new BGP extended community attribute called the "Prefix-List Community." This attribute allows for the dynamic assignment of prefixes to named prefix-lists via BGP signaling across multiple address families, including IPv4 unicast, IPv4 VPN, IPv6 unicast, and IPv6 VPN.</t>
+
+    <t><b>Problem Statement:</b> Prefix-lists are currently statically configured per system, which contributes significantly to operational overhead. The manual assignment process is prone to errors and is time-consuming, particularly in large-scale networks.</t>
+
+    <t><b>Proposed Solution:</b> The solution involves encoding prefix-list information within BGP routes. When a router receives a route with the Prefix-List Community attribute, it automatically assigns the received prefix to a preconfigured prefix-list without requiring manual intervention. This method not only reduces the likelihood of configuration errors but also simplifies the overall management of routing policies.</t>
+
+    <t>For instance, consider a scenario where a router receives a route such as <i>1.0.0.0/24</i> with the community attribute <i>prefix:100:100</i>. The router will automatically associate this route with the corresponding preconfigured prefix-list.</t>
+
+    <t><b>Behavior and Route Resolution:</b></t>
+    <t>
+        <ul>
+            <li>Route with only the Prefix-List Community: The route will be accepted with a maximum metric and will not be installed in the forwarding table.</li>
+            <li>Route with Other Communities: The route will be processed according to the standard BGP policy or the specific policy defined by the user.</li>
+            <li>Prefix-List Community: This community MUST also act as a NO_ADVERTISE (0xFFFFFF02) attribute well-known as defined in <xref target="RFC1997" /> unless a user-defined policy specifies otherwise.</li>
+        </ul>
+    </t>
+
+    <t><b>Alternative Approach:</b> Another proposed approach involves using a prefix table and new NLRI (Network Layer Reachability Information). In this model, prefix tables would be established for specific address families, such as <i>inet</i> (IPv4) and <i>inet6</i> (IPv6).</t>
+
+    <t>For example:</t>
+    <t>
+        <ul>
+            <li><b>Prefix Table:</b> <i>prefix.inet.0</i></li>
+            <li><b>Behavior:</b> All routes, whether they have a valid next-hop or not, would be received into this table without resolution, and there would be no forwarding for these routes.</li>
+        </ul>
+    </t>
+
+    <t>This method offers a more structured approach to handling prefixes, separating the process of prefix-list assignment from route resolution and forwarding decisions.</t>
+</section></middle>
+    <back>
+        <references title="Normative References">
+            <ns0:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.4271.xml" />
+            <ns0:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.4360.xml" />
+        </references>
+        <references title="Informative References">
+            <ns0:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.7153.xml" />
+            <ns0:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.7574.xml" />
+            <ns0:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.1321.xml" />
+            <ns0:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.5925.xml" />
+            <ns0:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.5082.xml" />
+            <ns0:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.6192.xml" />
+        </references>
+        <section title="Acronyms and Abbreviations">
+            <t>AFI: Address Family Identifier</t>
+            <t>BGP: Border Gateway Protocol</t>
+            <t>IP: Internet Protocol</t>
+            <t>IPv4: Internet Protocol version 4</t>
+            <t>IPv6: Internet Protocol version 6</t>
+            <t>NLRI: Network Layer Reachability Information</t>
+            <t>VPN: Virtual Private Network</t>
+            <t>SAFI: Subsequent Address Family Identifier</t>
+        </section>
+        <section title="Acknowledgements" anchor="ack">
+            <t>The author would like to thank the IETF community for their valuable feedback and suggestions.</t>
+        </section>
+    </back>
+</rfc>
