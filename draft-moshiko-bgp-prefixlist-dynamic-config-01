@@ -34,7 +34,7 @@
             <t>The general structure for defining a prefix-list is as follows:</t>
             <figure>
                 <artwork>
-                prefix-list &amp;lt;name&amp;gt; &amp;lt;prefix&amp;gt;
+                prefix-list &lt;name&gt; &lt;prefix&gt;
                 </artwork>
             </figure>
 
@@ -100,9 +100,9 @@
             <section title="Operational Behavior" anchor="operational-behavior">
                 <t>The operational behavior of a router with the Prefix-List Community attribute is as follows:</t>
 
-                <t>- <strong>Route Processing:</strong> A route received with only the Prefix-List Community attribute will be installed if there is a valid next-hop resolution. If the next-hop is invalid or cannot be resolved, the route may be placed into a hidden table but will still be used for prefix-list assignment.</t>
+                <t>- Route Processing: A route received with only the Prefix-List Community attribute will be installed if there is a valid next-hop resolution. If the next-hop is invalid or cannot be resolved, the route may be placed into a hidden table but will still be used for prefix-list assignment.</t>
 
-                <t>- <strong>Interaction with Other Communities:</strong> If a route is received with both the Prefix-List Community attribute and other community attributes, the router will process it as per standard BGP processing rules defined in <xref target="RFC4271" />.</t>
+                <t>- Interaction with Other Communities: If a route is received with both the Prefix-List Community attribute and other community attributes, the router will process it as per standard BGP processing rules defined in <xref target="RFC4271" />.</t>
             </section>
         </section>
 
@@ -114,36 +114,44 @@
         <section title="IANA Considerations" anchor="iana">
             <t>This document requests the allocation of a new BGP Extended Community Type for the Prefix-List Community attribute from the IANA "BGP Extended Communities" registry.</t>
         </section>
-    <section title="Operational Behavior and Route Resolution" anchor="operational-behavior-resolution">
-    <t>The current method of manually configuring prefix-lists on each network element is operationally intensive, leading to increased overhead and potential configuration errors. This document proposes a solution by introducing a new BGP extended community attribute called the "Prefix-List Community." This attribute allows for the dynamic assignment of prefixes to named prefix-lists via BGP signaling across multiple address families, including IPv4 unicast, IPv4 VPN, IPv6 unicast, and IPv6 VPN.</t>
 
-    <t><b>Problem Statement:</b> Prefix-lists are currently statically configured per system, which contributes significantly to operational overhead. The manual assignment process is prone to errors and is time-consuming, particularly in large-scale networks.</t>
-
-    <t><b>Proposed Solution:</b> The solution involves encoding prefix-list information within BGP routes. When a router receives a route with the Prefix-List Community attribute, it automatically assigns the received prefix to a preconfigured prefix-list without requiring manual intervention. This method not only reduces the likelihood of configuration errors but also simplifies the overall management of routing policies.</t>
-
-    <t>For instance, consider a scenario where a router receives a route such as <i>1.0.0.0/24</i> with the community attribute <i>prefix:100:100</i>. The router will automatically associate this route with the corresponding preconfigured prefix-list.</t>
-
-    <t><b>Behavior and Route Resolution:</b></t>
-    <t>
-        <ul>
-            <li>Route with only the Prefix-List Community: The route will be accepted with a maximum metric and will not be installed in the forwarding table.</li>
-            <li>Route with Other Communities: The route will be processed according to the standard BGP policy or the specific policy defined by the user.</li>
-            <li>Prefix-List Community: This community MUST also act as a NO_ADVERTISE (0xFFFFFF02) attribute well-known as defined in <xref target="RFC1997" /> unless a user-defined policy specifies otherwise.</li>
-        </ul>
-    </t>
-
-    <t><b>Alternative Approach:</b> Another proposed approach involves using a prefix table and new NLRI (Network Layer Reachability Information). In this model, prefix tables would be established for specific address families, such as <i>inet</i> (IPv4) and <i>inet6</i> (IPv6).</t>
-
-    <t>For example:</t>
-    <t>
-        <ul>
-            <li><b>Prefix Table:</b> <i>prefix.inet.0</i></li>
-            <li><b>Behavior:</b> All routes, whether they have a valid next-hop or not, would be received into this table without resolution, and there would be no forwarding for these routes.</li>
-        </ul>
-    </t>
-
-    <t>This method offers a more structured approach to handling prefixes, separating the process of prefix-list assignment from route resolution and forwarding decisions.</t>
-</section></middle>
+        <section title="Operational Behavior and Route Resolution" anchor="operational-behavior-resolution">
+            <t>The current method of manually configuring prefix-lists on each network element is operationally intensive, leading to increased overhead and potential configuration errors. This document proposes a solution by introducing a new BGP extended community attribute called the "Prefix-List Community." This attribute allows for the dynamic assignment of prefixes to named prefix-lists via BGP signaling across multiple address families, including IPv4 unicast, IPv4 VPN, IPv6 unicast, and IPv6 VPN.</t>
+            <t>
+                Problem Statement: Prefix-lists are currently statically configured per system, which contributes significantly to operational overhead. The manual assignment process is prone to errors and is time-consuming, particularly in large-scale networks.
+            </t>
+            <t>
+                Proposed Solution: The solution involves encoding prefix-list information within BGP routes. When a router receives a route with the Prefix-List Community attribute, it automatically assigns the received prefix to a preconfigured prefix-list without requiring manual intervention. This method not only reduces the likelihood of configuration errors but also simplifies the overall management of routing policies.
+            </t>
+            <t>For instance, consider a scenario where a router receives a route such as 1.0.0.0/24 with the community attribute prefix:100:100. The router will automatically associate this route with the corresponding preconfigured prefix-list.</t>
+            <t>
+                Behavior and Route Resolution:
+            </t>
+            <t>
+                <ul>
+                    <li>Route with only the Prefix-List Community: The route will be accepted with a maximum metric and will not be installed in the forwarding table.</li>
+                    <li>Route with Other Communities: The route will be processed according to the standard BGP policy or the specific policy defined by the user.</li>
+                    <li>Prefix-List Community: This community MUST also act as a NO_ADVERTISE (0xFFFFFF02) attribute well-known as defined in <xref target="RFC8642" /> unless a user-defined policy specifies otherwise.
+                    </li>
+                </ul>
+            </t>
+            <t>
+                Alternative Approach: Another proposed approach involves using a prefix table and new NLRI (Network Layer Reachability Information). In this model, prefix tables would be established for specific address families, such as inet (IPv4) and inet6 (IPv6).
+            </t>
+            <t>For example:</t>
+            <t>
+                <ul>
+                    <li>
+                        Prefix Table: prefix.inet.0
+                    </li>
+                    <li>
+                        Behavior: All routes, whether they have a valid next-hop or not, would be received into this table without resolution, and there would be no forwarding for these routes.
+                    </li>
+                </ul>
+            </t>
+            <t>This method offers a more structured approach to handling prefixes, separating the process of prefix-list assignment from route resolution and forwarding decisions.</t>
+        </section>
+    </middle>
     <back>
         <references title="Normative References">
             <ns0:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.4271.xml" />
@@ -156,6 +164,7 @@
             <ns0:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.5925.xml" />
             <ns0:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.5082.xml" />
             <ns0:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.6192.xml" />
+            <ns0:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.8642.xml" />
         </references>
         <section title="Acronyms and Abbreviations">
             <t>AFI: Address Family Identifier</t>
