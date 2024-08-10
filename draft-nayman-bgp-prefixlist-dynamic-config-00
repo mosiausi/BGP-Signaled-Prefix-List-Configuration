@@ -117,6 +117,16 @@
         <references title="Informative References">
             <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.7153.xml"/>
         </references>
+        <section title="Acronyms and Abbreviations">
+            <t>AFI: Address Family Identifier</t>
+            <t>BGP: Border Gateway Protocol</t>
+            <t>IP: Internet Protocol</t>
+            <t>IPv4: Internet Protocol version 4</t>
+            <t>IPv6: Internet Protocol version 6</t>
+            <t>NLRI: Network Layer Reachability Information</t>
+            <t>VPN: Virtual Private Network</t>
+            <t>SAFI: Subsequent Address Family Identifier</t>
+        </section>
         <section title="Acknowledgements" anchor="ack">
             <t>The author would like to thank the IETF community for their valuable feedback and suggestions.</t>
         </section>
