@@ -6,10 +6,10 @@
     submissionType="IETF"
     ipr="trust200902"
     xml:lang="en"
-    docName="draft-nayman-bgp-prefixlist-dynamic-config-00">
+    docName="draft-moshiko-bgp-prefixlist-dynamic-config-00">
     <front>
         <title abbrev="BGP Signaled Prefix-List">BGP Signaled Prefix-List For Dynamic Configuration</title>
-        <seriesInfo name="Internet-Draft" value="draft-nayman-bgp-prefixlist-dynamic-config-00" />
+        <seriesInfo name="Internet-Draft" value="draft-moshiko-bgp-prefixlist-dynamic-config-00" />
         <author fullname="Moshiko Nayman" initials="M" role="editor" surname="Nayman">
             <organization>Juniper Networks</organization>
             <address>
